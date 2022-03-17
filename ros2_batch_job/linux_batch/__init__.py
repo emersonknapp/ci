@@ -74,6 +74,9 @@ class LinuxBatchJob(BatchJob):
                 with open(connext_env_file, 'r') as env_file:
                     env_file_data = env_file.read()
                 env_file_data = env_file_data.replace('${BASH_SOURCE[0]}', connext_env_file)
+                env_file_data += 'LD_LIBRARY_PATH="$RTI_OPENSSL_LIBS":$LD_LIBRARY_PATH; export LD_LIBRARY_PATH\n'
+                env_file_data += 'PATH="$RTI_OPENSSL_BIN":$PATH; export PATH\n'
+                env_file_data += 'PKG_CONFIG_PATH="$RTI_OPENSSL_LIBS/pkgconfig":$PKG_CONFIG_PATH; export PKG_CONFIG_PATH\n'
                 # Create the new script to a writable location
                 connext_env_file = os.path.join(os.getcwd(), 'rti.sh')
                 with open(connext_env_file, 'w') as env_file:
