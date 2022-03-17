@@ -66,7 +66,7 @@ def force_color():
 
 
 def generated_venv_vars(venv_path):
-    venv_python = os.path.join(venv_path, 'bin', 'python')
+    venv_python = os.path.join(venv_path, 'local', 'bin', 'python')
     # Note(wjwwood): I have intentionally stripped a few choice env variables
     # from the environment passed to venv subprocesses, because they cause pip
     # to install things into the wrong prefix by default. Some related links:
