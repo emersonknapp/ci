@@ -593,7 +593,7 @@ def run(args, build_function, blacklisted_package_names=None):
         if args.do_venv:
             vcs_cmd = [
                 '"%s"' % job.python,
-                '"%s"' % os.path.join(venv_path, 'local', 'bin', 'vcs')]
+                '"%s"' % os.path.join(venv_path, 'bin', 'vcs')]
         else:
             vcs_cmd = ['vcs']
 
@@ -628,7 +628,7 @@ def run(args, build_function, blacklisted_package_names=None):
                 shell=True)
 
         if args.do_venv and sys.platform != 'win32':
-            colcon_script = os.path.join(venv_path, 'local', 'bin', 'colcon')
+            colcon_script = os.path.join(venv_path, 'bin', 'colcon')
         else:
             colcon_script = which('colcon')
         args.colcon_script = colcon_script
