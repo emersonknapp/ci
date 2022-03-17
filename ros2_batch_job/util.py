@@ -88,7 +88,7 @@ def generated_venv_vars(venv_path):
             kwargs['env'] = venv_env
         # Prefix all commands with a sourcing of the 'activate' script from pip
         this_venv_path = os.path.relpath(venv_path, os.getcwd())
-        activate = os.path.join(this_venv_path, 'bin', 'activate')
+        activate = os.path.join(this_venv_path, 'local', 'bin', 'activate')
         prefix = ['.', activate, '&&']
         log('(venv)')
         return run_with_prefix(prefix, cmd, **kwargs)
