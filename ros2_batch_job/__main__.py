@@ -425,6 +425,10 @@ def build_and_test(args, job):
     print(os.system("find install"))
     print('# END SUBSECTION')
 
+    print('# BEGIN SUBSECTION: environment')
+    print(os.system("printenv"))
+    print('# END SUBSECTION')
+
     # Uncomment this line to failing tests a failrue of this command.
     # return 0 if ret_test == 0 and ret_testr == 0 else 1
     return 0
