@@ -417,6 +417,14 @@ def build_and_test(args, job):
     if args.coverage and args.os == 'linux':
         process_coverage(args, job)
 
+    print('# BEGIN SUBSECTION: build artifacts')
+    print(os.system("find build"))
+    print('# END SUBSECTION')
+
+    print('# BEGIN SUBSECTION: install artifacts')
+    print(os.system("find install"))
+    print('# END SUBSECTION')
+
     # Uncomment this line to failing tests a failrue of this command.
     # return 0 if ret_test == 0 and ret_testr == 0 else 1
     return 0
