@@ -631,8 +631,6 @@ def run(args, build_function, blacklisted_package_names=None):
             colcon_script = os.path.join(venv_path, 'bin', 'colcon')
         else:
             colcon_script = which('colcon')
-            print("------------------ CHRIS: colcon_script:", colcon_script)
-            print(os.system("ls /usr/local/bin"))
 
         args.colcon_script = colcon_script
         # Show what pip has
