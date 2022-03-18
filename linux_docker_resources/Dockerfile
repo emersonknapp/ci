@@ -89,8 +89,6 @@ RUN if test ${PLATFORM} = x86; then apt-get update && apt-get install --no-insta
 # Install dependencies for RTI web binaries install script.
 RUN apt-get update && apt-get install --no-install-recommends -y python3-pexpect
 
-RUN apt-get update && apt-get install --no-install-recommends -y python3-colcon-core python3-colcon-defaults python3-colcon-library-path python3-colcon-metadata python3-colcon-mixin python3-colcon-output python3-colcon-package-information python3-colcon-package-selection python3-colcon-parallel-executor python3-colcon-powershell python3-colcon-python-setup-py python3-colcon-recursive-crawl python3-colcon-test-result python3-colcon-cmake python3-colcon-ros python3-colcon-bash python3-colcon-zsh
-
 # Get and install the RTI web binaries.
 # Connext 5.3.1 for focal and earlier.
 RUN if test ${UBUNTU_DISTRO} != jammy; then cd /tmp && curl --silent https://s3.amazonaws.com/RTI/Bundles/5.3.1/Evaluation/rti_connext_dds_secure-5.3.1-eval-x64Linux3gcc5.4.0.tar.gz | tar -xz; fi

@@ -89,24 +89,23 @@ if sys.platform in ('darwin'):
         'netifaces'
     ]
 
-# colcon_packages = [
-#     'colcon-core',
-#     'colcon-defaults',
-#     'colcon-library-path',
-#     'colcon-metadata',
-#     'colcon-mixin',
-#     'colcon-output',
-#     'colcon-package-information',
-#     'colcon-package-selection',
-#     'colcon-parallel-executor',
-#     'colcon-powershell',
-#     'colcon-python-setup-py',
-#     'colcon-recursive-crawl',
-#     'colcon-test-result',
-#     'colcon-cmake',
-#     'colcon-ros',
-# ]
-colcon_packages = []
+colcon_packages = [
+    'colcon-core',
+    'colcon-defaults',
+    'colcon-library-path',
+    'colcon-metadata',
+    'colcon-mixin',
+    'colcon-output',
+    'colcon-package-information',
+    'colcon-package-selection',
+    'colcon-parallel-executor',
+    'colcon-powershell',
+    'colcon-python-setup-py',
+    'colcon-recursive-crawl',
+    'colcon-test-result',
+    'colcon-cmake',
+    'colcon-ros',
+]
 if sys.platform != 'win32':
     colcon_packages += [
         'colcon-bash',
