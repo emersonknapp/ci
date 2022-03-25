@@ -130,7 +130,6 @@ def main(sysargv=None):
             'common_interfaces',
             'cv_bridge',
             'opencv_tests',
-            'ros1_bridge',
             'shape_msgs',
             'stereo_msgs',
             'vision_opencv',
