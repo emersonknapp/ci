@@ -785,6 +785,11 @@ def run(args, build_function, blacklisted_package_names=None):
                         pass
             print('# END SUBSECTION')
 
+        print('# BEGIN SUBSECTION: choco package versions')
+        job.run(['choco', 'list', '--local-only'],
+            shell=True)
+        print('# END SUBSECTION')
+
         rc = build_function(args, job)
 
     job.post()
