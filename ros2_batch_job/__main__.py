@@ -638,7 +638,9 @@ def run(args, build_function, blacklisted_package_names=None):
             colcon_script = os.path.join(venv_path, 'bin', 'colcon')
         else:
             colcon_script = which('colcon')
-        args.colcon_script = colcon_script or '/home/rosbuild/.local/bin/colcon'
+        if not colcon_script:
+            colcon_script = '/home/rosbuild/.local/bin/colcon'
+        args.colcon_script = colcon_script
         # Show what pip has
         job.run(['"%s"' % job.python, '-m', 'pip', 'freeze', '--all'], shell=True)
         print('# END SUBSECTION')
