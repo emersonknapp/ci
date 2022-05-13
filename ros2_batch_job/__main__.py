@@ -77,6 +77,7 @@ pip_dependencies = [
     'pytest-rerunfailures',
     'pytest-runner',
     'pyyaml',
+    'setuptools>60',
     'vcstool',
     'yamllint',
 ]
