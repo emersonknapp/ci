@@ -41,8 +41,6 @@ RUN curl --silent http://packages.osrfoundation.org/gazebo.key | apt-key add -
 # Install some development tools.
 RUN apt-get update && apt-get install --no-install-recommends -y build-essential ccache cmake pkg-config python3-empy python3-pip python3-setuptools python3-vcstool python3-venv
 RUN apt-get update && apt-get install --no-install-recommends -y python3-lark python3-opencv
-# Install virtualenv 16.7.9 needed for Foxy builds on Focal. https://github.com/ros2/ci/issues/400
-RUN if test ${UBUNTU_DISTRO} = focal; then python3 -m pip install virtualenv==16.7.9; fi
 
 # Install build and test dependencies of ROS 2 packages.
 RUN apt-get update && apt-get install --no-install-recommends -y \
@@ -59,10 +57,29 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
   libxslt-dev \
   libyaml-cpp-dev \
   pydocstyle \
-  python3-pyflakes \
+  python3-catkin-pkg \
+  python3-colcon-bash \
+  python3-colcon-cmake \
+  python3-colcon-core \
+  python3-colcon-defaults \
+  python3-colcon-library-path \
+  python3-colcon-metadata \
+  python3-colcon-mixin \
+  python3-colcon-output \
+  python3-colcon-package-information \
+  python3-colcon-package-selection \
+  python3-colcon-parallel-executor \
+  python3-colcon-pkg-config \
+  python3-colcon-powershell \
+  python3-colcon-python-setup-py \
+  python3-colcon-recursive-crawl \
+  python3-colcon-ros \
+  python3-colcon-test-result \
+  python3-colcon-zsh \
   python3-coverage \
   python3-cryptography \
   python3-flake8 \
+  python3-flake8-docstrings \
   python3-lxml \
   python3-mock \
   python3-mypy \
@@ -71,13 +88,22 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
   python3-numpy \
   python3-pep8 \
   python3-psutil \
+  python3-pyflakes \
   python3-pykdl \
   python3-pyparsing \
+  python3-pytest \
+  python3-pytest-cov \
   python3-pytest-mock \
+  python3-pytest-runner \
   python3-pytest-timeout \
   python3-yaml \
   uncrustify \
   yamllint
+
+# Install virtualenv 16.7.9 needed for Foxy builds on Focal. https://github.com/ros2/ci/issues/400
+RUN if test ${UBUNTU_DISTRO} = focal; then python3 -m pip install virtualenv==16.7.9 catkin_pkg flake8-blind-except==0.1.1 flake8-builtins flake8-class-newline flake8-comprehensions flake8-deprecated flake8-import-order flake8-quotes pytest-repeat pytest-rerunfailures; fi
+
+RUN if test ${UBUNTU_DISTRO} = jammy; then apt-get update && apt-get install --no-install-recommends -y python3-flake8-blind-except python3-flake8-builtins python3-flake8-class-newline python3-flake8-comprehensions python3-flake8-deprecated python3-flake8-import-order python3-flake8-quotes python3-pytest-repeat python3-pytest-rerunfailures; fi
 
 # Install clang if build arg is true
 RUN if test ${COMPILE_WITH_CLANG} = true; then apt-get update && apt-get install --no-install-recommends -y clang libc++-dev libc++abi-dev; fi

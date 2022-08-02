@@ -48,46 +48,10 @@ from .util import UnbufferedIO
 sys.stdout = UnbufferedIO(sys.stdout)
 sys.stderr = UnbufferedIO(sys.stderr)
 
-# One of the maintainers of pyparsing suggests pinning to 2.4.7 for now;
-# see https://github.com/pyparsing/pyparsing/issues/323
-pip_dependencies = [
-    'EmPy',
-    'coverage',
-    'catkin_pkg',
-    'flake8',
-    'flake8-blind-except==0.1.1',
-    'flake8-builtins',
-    'flake8-class-newline',
-    'flake8-comprehensions',
-    'flake8-deprecated',
-    'flake8-docstrings',
-    'flake8-import-order',
-    'flake8-quotes',
-    'importlib-metadata',
-    'mock',
-    'nose',
-    'pep8',
-    'pydocstyle',
-    'pyflakes',
-    'pyparsing==2.4.7',
-    'pytest',
-    'pytest-cov',
-    'pytest-mock',
-    'pytest-repeat',
-    'pytest-rerunfailures',
-    'pytest-runner',
-    'pyyaml',
-    'vcstool',
-    'yamllint',
-]
 # https://github.com/pyca/cryptography/issues/5433
 pip_cryptography_version = '==3.0'
-if sys.platform in ('darwin'):
-    pip_dependencies += [
-        f'cryptography{pip_cryptography_version}',
-        'lxml',
-        'netifaces'
-    ]
+
+pip_dependencies = []
 
 colcon_packages = [
     'colcon-core',
@@ -481,16 +445,9 @@ def run(args, build_function, blacklisted_package_names=None):
     # Check the env
     job.show_env()
 
-    colcon_script = None
     # Enter a venv if asked to, the venv must be in a path without spaces
     if args.do_venv:
         print('# BEGIN SUBSECTION: enter virtualenv')
-
-        if args.os != 'linux':
-            # Do not try this on Linux as elevated privileges are needed.
-            # The Linux host or Docker image will need to ensure the right
-            # version of virtualenv is available.
-            job.run([sys.executable, '-m', 'pip', 'install', '-U', 'virtualenv==16.7.9'])
 
         venv_subfolder = 'venv'
         remove_folder(venv_subfolder)
@@ -514,14 +471,6 @@ def run(args, build_function, blacklisted_package_names=None):
 
     # Now inside of the workspace...
     with change_directory(args.workspace):
-        def need_package_from_pipy(pkg_name):
-            try:
-                importlib.import_module(pkg_name)
-            except ModuleNotFoundError:
-                return True
-
-            return False
-
         print('# BEGIN SUBSECTION: install Python packages')
         # Print setuptools version
         job.run(['"%s"' % job.python, '-c', '"import setuptools; print(setuptools.__version__)"'],
@@ -530,24 +479,6 @@ def run(args, build_function, blacklisted_package_names=None):
         job.run(['"%s"' % job.python, '-m', 'pip', '--version'], shell=True)
         # Install pip dependencies
         pip_packages = list(pip_dependencies)
-
-        # We prefer to get mypy from the distribution if it exists.  If not we install it via pip.
-        if need_package_from_pipy("mypy"):
-            if args.ros_distro in ["foxy", "galactic"]:
-                pip_packages += ["mypy==0.761"]
-            else:
-                pip_packages += ["mypy==0.931"]
-
-        # We prefer to get pytest-timeout from the distribution if it exists.  If not we install it via pip.
-        if need_package_from_pipy("pytest_timeout"):
-            pip_packages += ["pytest-timeout==2.1.0"]
-
-        # We prefer to get lark from the distribution if it exists.  If not we install it via pip.
-        if need_package_from_pipy("lark"):
-            if args.ros_distro in ["foxy", "galactic"]:
-                pip_packages += ["lark-parser==0.8.1"]
-            else:
-                pip_packages += ["lark==1.1.1"]
 
         if sys.platform == 'win32':
             # Install fork of pyreadline containing fix for deprecation warnings
@@ -574,8 +505,6 @@ def run(args, build_function, blacklisted_package_names=None):
                     'netifaces',
                     'numpy',
                 ]
-        if not args.colcon_branch:
-            pip_packages += colcon_packages
         if sys.platform == 'win32':
             job.run(
                 ['"%s"' % job.python, '-m', 'pip', 'uninstall', '-y'] +
@@ -584,24 +513,20 @@ def run(args, build_function, blacklisted_package_names=None):
             job.run(
                 ['"%s"' % job.python, '-m', 'pip', 'uninstall', '-y'] +
                 [f'cryptography{pip_cryptography_version}', 'lxml', 'numpy'], shell=True)
-        pip_cmd = ['"%s"' % job.python, '-m', 'pip', 'install', '-U']
-        if args.do_venv or sys.platform == 'win32':
-            # Force reinstall so all dependencies are in virtual environment
-            # On Windows since we switch between the debug and non-debug
-            # interpreter all packages need to be reinstalled too
-            pip_cmd.append('--force-reinstall')
-        job.run(
-            pip_cmd + pip_packages,
-            shell=True)
+        if pip_packages:
+            pip_cmd = ['"%s"' % job.python, '-m', 'pip', 'install', '-U']
+            if args.do_venv or sys.platform == 'win32':
+                # Force reinstall so all dependencies are in virtual environment
+                # On Windows since we switch between the debug and non-debug
+                # interpreter all packages need to be reinstalled too
+                pip_cmd.append('--force-reinstall')
+            job.run(
+                pip_cmd + pip_packages,
+                shell=True)
 
         # OS X can't invoke a file which has a space in the shebang line
         # therefore invoking vcs explicitly through Python
-        if args.do_venv:
-            vcs_cmd = [
-                '"%s"' % job.python,
-                '"%s"' % os.path.join(venv_path, 'bin', 'vcs')]
-        else:
-            vcs_cmd = ['vcs']
+        vcs_cmd = [which('vcs')]
 
         if args.colcon_branch:
             # create .repos file for colcon repositories
@@ -633,11 +558,14 @@ def run(args, build_function, blacklisted_package_names=None):
                 ['colcon/%s' % name for name in colcon_packages],
                 shell=True)
 
-        if args.do_venv and sys.platform != 'win32':
-            colcon_script = os.path.join(venv_path, 'bin', 'colcon')
+        if args.do_venv:
+            if args.colcon_branch:
+                args.colcon_script = os.path.join(venv_path, 'bin', 'colcon')
+            else:
+                args.colcon_script = which('colcon')
         else:
-            colcon_script = which('colcon')
-        args.colcon_script = colcon_script
+            args.colcon_script = which('colcon')
+
         # Show what pip has
         job.run(['"%s"' % job.python, '-m', 'pip', 'freeze', '--all'], shell=True)
         print('# END SUBSECTION')
@@ -775,7 +703,7 @@ def run(args, build_function, blacklisted_package_names=None):
             print('Trying to ignore the following packages:')
             [print('- ' + name) for name in blacklisted_package_names]
             output = subprocess.check_output(
-                [colcon_script, 'list', '--base-paths', args.sourcespace])
+                [args.colcon_script, 'list', '--base-paths', args.sourcespace])
             for line in output.decode().splitlines():
                 package_name, package_path, _ = line.split('\t', 2)
                 if package_name in blacklisted_package_names:
